@@ -24,6 +24,16 @@ export default (sequelize, DataTypes) => {
     thumbnail_url: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      defaultValue: 0.00
+    },
+    currency: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'NGN'
     }
   }, {
     timestamps: true

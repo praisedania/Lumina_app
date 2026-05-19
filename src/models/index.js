@@ -6,6 +6,8 @@ import Lesson from './Lesson.js';
 import Enrollment from './Enrollment.js';
 import Conversation from './Conversation.js';
 import Message from './Message.js';
+import InstructorProfile from './InstructorProfile.js';
+import Transaction from './Transaction.js';
 
 dotenv.config();
 
@@ -31,6 +33,8 @@ const models = {
   Enrollment: Enrollment(sequelize, Sequelize.DataTypes),
   Conversation: Conversation(sequelize, Sequelize.DataTypes),
   Message: Message(sequelize, Sequelize.DataTypes),
+  InstructorProfile: InstructorProfile(sequelize, Sequelize.DataTypes),
+  Transaction: Transaction(sequelize, Sequelize.DataTypes),
 };
 
 // Apply associations

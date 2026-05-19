@@ -3,7 +3,7 @@ import models from '../models/index.js';
 export const createCourse = async (req, res) => {
   try {
     const instructor_id = req.user.id;
-    const { title, description, category, thumbnail_url } = req.body;
+    const { title, description, category, thumbnail_url, price, currency } = req.body;
     
     if (!title) {
       return res.status(400).json({ status: 'error', message: 'title is required' });
@@ -14,7 +14,9 @@ export const createCourse = async (req, res) => {
       title,
       description,
       category,
-      thumbnail_url
+      thumbnail_url,
+      price: price !== undefined ? parseFloat(price) : 0.00,
+      currency: currency || 'NGN'
     });
 
     // Create a chat room for this course
@@ -72,7 +74,7 @@ export const getCourseById = async (req, res) => {
 export const updateCourse = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, category, thumbnail_url } = req.body;
+    const { title, description, category, thumbnail_url, price, currency } = req.body;
 
     const course = await models.Course.findByPk(id);
 
@@ -88,6 +90,8 @@ export const updateCourse = async (req, res) => {
     if (description !== undefined) course.description = description;
     if (category !== undefined) course.category = category;
     if (thumbnail_url !== undefined) course.thumbnail_url = thumbnail_url;
+    if (price !== undefined) course.price = parseFloat(price);
+    if (currency !== undefined) course.currency = currency;
 
     await course.save();
 

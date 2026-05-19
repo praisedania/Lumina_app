@@ -36,6 +36,7 @@ export default (sequelize, DataTypes) => {
   User.associate = (models) => {
     User.hasMany(models.Course, { foreignKey: 'instructor_id', as: 'courses' });
     User.hasMany(models.Enrollment, { foreignKey: 'user_id', as: 'enrollments' });
+    User.hasOne(models.InstructorProfile, { foreignKey: 'user_id', as: 'instructorProfile' });
   };
 
   return User;

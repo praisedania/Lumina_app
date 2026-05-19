@@ -16,6 +16,22 @@ export const enrollInCourse = async (req, res) => {
       return res.status(404).json({ status: 'error', message: 'Course not found' });
     }
 
+    // Assert that the course is free
+    if (parseFloat(course.price || 0) > 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'This is a paid course. Please use the checkout endpoint to purchase and enroll in this course.'
+      });
+    }
+
+    // Assert that the course is free
+    if (parseFloat(course.price || 0) > 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'This is a paid course. Please use the checkout endpoint to purchase and enroll in this course.'
+      });
+    }
+
     // 2. Check if already enrolled
     const existingEnrollment = await models.Enrollment.findOne({
       where: { user_id: userId, course_id: courseId }
