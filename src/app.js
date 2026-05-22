@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './swagger.js';
 
 const app = express();
 
@@ -11,10 +13,19 @@ app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Root welcome endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({ status: 'success', message: 'Welcome to Lumina LMS API' });
+});
+
 // Basic Health Check Route
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'success', message: 'Lumina API is running' });
 });
+
+// Swagger API docs
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, { explorer: true }));
+app.get('/api/docs.json', (req, res) => res.json(swaggerSpec));
 
 // Import and use routes here
 import routes from './routes/index.js';
