@@ -68,7 +68,8 @@ All routes are prefixed with `/api`.
 ### 📚 Courses & Lessons
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/courses` | Get all courses |
+| `GET` | `/courses/home` | Get paginated courses for Home Page (Public / Optional Auth) |
+| `GET` | `/courses` | Get all courses (Private) |
 | `GET` | `/courses/:id` | Get single course details |
 | `POST` | `/courses` | Create a course (Instructor only) |
 | `GET` | `/lessons/course/:courseId` | Get all lessons for a course |

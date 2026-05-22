@@ -29,7 +29,9 @@ Lumina Backend API (/api)
  │    ├── POST  /                             -> Create course (Instructor only)
  │    ├── PATCH /:id                          -> Update course (Instructor/Admin)
  │    ├── GET   /                             -> Fetch all courses
- │    └── GET   /:id                          -> Fetch specific course & lessons list
+ │    ├── GET   /:id                          -> Fetch specific course & lessons list
+ │    ├── GET   /home                         -> Fetch paginated courses for Home Page (Public/Optional Auth)
+ │    └── GET   /public                       -> Alias for /home (Public/Optional Auth)
  ├── /lessons
  │    ├── POST  /                             -> Create lesson (Instructor only)
  │    ├── PATCH /:id                          -> Update lesson (Instructor/Admin)
@@ -222,7 +224,94 @@ Fetches all active courses across the platform. Includes the instructor's coordi
 
 ---
 
-### 2.3 Get Specific Course by ID
+### 2.3 Get Paginated Home Page Courses
+Fetches courses for the landing/home page with high-performance pagination, sorting, filtering, and optional user personalization context.
+* **URL:** `/api/courses/home` (or the alias `/api/courses/public`)
+* **Method:** `GET`
+* **Auth Guard:** Public / Optional Authentication (If a valid JWT token is sent in the `Authorization` header, the response will also include `enrolledCourseIds`).
+* **Query Parameters:**
+  - `page` (integer, default: `1`) -> Page to retrieve.
+  - `limit` (integer, default: `10`) -> Number of courses per page.
+  - `category` (string, optional) -> Filter by exact category (e.g. `Software Development`).
+  - `search` (string, optional) -> Case-insensitive search on `title` or `description` (e.g. `node`).
+  - `minPrice` / `maxPrice` (numeric, optional) -> Filter courses by price range (e.g. `minPrice=1000&maxPrice=15000`).
+  - `sortBy` (string, optional) -> Fields: `createdAt`, `price`, `title`, `category`. (default: `createdAt`).
+  - `sortOrder` (string, optional) -> `ASC` or `DESC` (default: `DESC`).
+
+#### Success Response (Public Guest Visitor) (`200 OK`)
+```json
+{
+  "status": "success",
+  "data": {
+    "courses": [
+      {
+        "id": "c10d34e9-fc12-44df-91ea-d2f62cbfa8a9",
+        "instructor_id": "e30c451b-1a98-4c12-9214-a9fae8a719d3",
+        "title": "Fullstack Node.js and Express Course",
+        "description": "Learn backend development in modern Node.js.",
+        "category": "Software Engineering",
+        "thumbnail_url": "https://cdn.example.com/node-thumb.png",
+        "price": 15000.00,
+        "currency": "NGN",
+        "Instructor": {
+          "id": "e30c451b-1a98-4c12-9214-a9fae8a719d3",
+          "name": "Jane Instructor",
+          "email": "jane@example.com"
+        }
+      }
+    ],
+    "enrolledCourseIds": [],
+    "pagination": {
+      "totalCourses": 1,
+      "totalPages": 1,
+      "currentPage": 1,
+      "limit": 10,
+      "hasNextPage": false,
+      "hasPrevPage": false
+    }
+  }
+}
+```
+
+#### Success Response (Logged-In Student) (`200 OK`)
+Passed with headers `Authorization: Bearer <token>`.
+```json
+{
+  "status": "success",
+  "data": {
+    "courses": [
+      {
+        "id": "c10d34e9-fc12-44df-91ea-d2f62cbfa8a9",
+        "instructor_id": "e30c451b-1a98-4c12-9214-a9fae8a719d3",
+        "title": "Fullstack Node.js and Express Course",
+        "description": "Learn backend development in modern Node.js.",
+        "category": "Software Engineering",
+        "thumbnail_url": "https://cdn.example.com/node-thumb.png",
+        "price": 15000.00,
+        "currency": "NGN",
+        "Instructor": {
+          "id": "e30c451b-1a98-4c12-9214-a9fae8a719d3",
+          "name": "Jane Instructor",
+          "email": "jane@example.com"
+        }
+      }
+    ],
+    "enrolledCourseIds": ["c10d34e9-fc12-44df-91ea-d2f62cbfa8a9"],
+    "pagination": {
+      "totalCourses": 1,
+      "totalPages": 1,
+      "currentPage": 1,
+      "limit": 10,
+      "hasNextPage": false,
+      "hasPrevPage": false
+    }
+  }
+}
+```
+
+---
+
+### 2.4 Get Specific Course by ID
 Fetches details of a specific course, including sorted lessons hierarchy.
 * **URL:** `/api/courses/:id`
 * **Method:** `GET`
@@ -258,7 +347,7 @@ Fetches details of a specific course, including sorted lessons hierarchy.
 
 ---
 
-### 2.4 Update Course
+### 2.5 Update Course
 * **URL:** `/api/courses/:id`
 * **Method:** `PATCH`
 * **Auth Guard:** Private (Requires Course Owner or Administrator token)
