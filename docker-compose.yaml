@@ -1,0 +1,27 @@
+services:
+  lumina-api:
+    image: ${IMAGE}
+    ports:
+      - "5000:5000"
+    env_file:
+      - /opt/vars/lumina-env
+    depends_on:
+      - lumina-postgres
+    networks:
+      - lumina_net
+
+  lumina-postgres:
+    image: postgres:18-alpine
+    env_file:
+      - /opt/vars/lumina-env
+    volumes:
+      - lumina_postgres_data:/var/lib/postgresql/data
+    networks:
+      - lumina_net
+
+networks:
+  lumina_net:
+    driver: bridge
+
+volumes:
+  lumina_postgres_data:
