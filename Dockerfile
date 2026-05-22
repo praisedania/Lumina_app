@@ -6,7 +6,7 @@ RUN apk add --no-cache python3 make g++ cairo-dev jpeg-dev pango-dev giflib-dev 
 
 COPY package*.json ./
 
-RUN npm ci --only=production && \
+RUN npm ci && \
     npm cache clean --force
 
 FROM node:20-alpine
