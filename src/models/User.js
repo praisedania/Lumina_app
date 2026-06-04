@@ -28,6 +28,15 @@ export default (sequelize, DataTypes) => {
     avatar_url: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    isVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false
+    },
+    verificationToken: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
   }, {
     timestamps: true

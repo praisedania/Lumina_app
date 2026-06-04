@@ -47,7 +47,8 @@ const swaggerSpec = {
           title: { type: 'string' },
           description: { type: 'string' },
           price: { type: 'number' },
-          instructorId: { type: 'string' }
+          instructorId: { type: 'string' },
+          enrollmentCount: { type: 'integer' }
         }
       },
       PaymentCheckout: {
@@ -121,7 +122,31 @@ const swaggerSpec = {
           }
         },
         responses: {
-          '201': { description: 'User registered successfully' },
+          '201': {
+            description: 'User registered successfully. Email verification is required.',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    status: { type: 'string' },
+                    message: { type: 'string' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string' },
+                        name: { type: 'string' },
+                        email: { type: 'string' },
+                        role: { type: 'string' },
+                        isVerified: { type: 'boolean' },
+                        verificationToken: { type: 'string' }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
           '400': { description: 'Validation error', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
         }
       }
@@ -140,7 +165,74 @@ const swaggerSpec = {
         },
         responses: {
           '200': { description: 'Login successful' },
-          '401': { description: 'Invalid credentials', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
+          '401': { description: 'Invalid credentials', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+          '403': { description: 'Email verification required', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
+        }
+      }
+    },
+    '/api/auth/verify': {
+      get: {
+        tags: ['Auth'],
+        summary: 'Verify user email via URL token',
+        parameters: [
+          {
+            name: 'token',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+            description: 'Verification token sent to user email'
+          }
+        ],
+        responses: {
+          '200': { description: 'Email verified successfully' },
+          '400': { description: 'Invalid or missing token', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
+        }
+      },
+      post: {
+        tags: ['Auth'],
+        summary: 'Verify user email via JSON payload',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  token: { type: 'string' }
+                },
+                required: ['token']
+              }
+            }
+          }
+        },
+        responses: {
+          '200': { description: 'Email verified successfully' },
+          '400': { description: 'Invalid or missing token', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
+        }
+      }
+    },
+    '/api/auth/resend-verification': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Resend verification email',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  email: { type: 'string', format: 'email' }
+                },
+                required: ['email']
+              }
+            }
+          }
+        },
+        responses: {
+          '200': { description: 'Verification email resent successfully' },
+          '400': { description: 'Invalid input or already verified', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } },
+          '404': { description: 'User not found', content: { 'application/json': { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
         }
       }
     },

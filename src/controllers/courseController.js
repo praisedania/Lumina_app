@@ -37,6 +37,18 @@ export const createCourse = async (req, res) => {
 export const getAllCourses = async (req, res) => {
   try {
     const courses = await models.Course.findAll({
+      attributes: {
+        include: [
+          [
+            models.sequelize.literal(`(
+              SELECT CAST(COUNT(*) AS INTEGER)
+              FROM "Enrollments" AS "enrollment"
+              WHERE "enrollment"."course_id" = "Course"."id"
+            )`),
+            'enrollmentCount'
+          ]
+        ]
+      },
       include: [
         { model: models.User, as: 'Instructor', attributes: ['id', 'name', 'email'] }
       ]
@@ -52,6 +64,18 @@ export const getCourseById = async (req, res) => {
   try {
     const { id } = req.params;
     const course = await models.Course.findByPk(id, {
+      attributes: {
+        include: [
+          [
+            models.sequelize.literal(`(
+              SELECT CAST(COUNT(*) AS INTEGER)
+              FROM "Enrollments" AS "enrollment"
+              WHERE "enrollment"."course_id" = "Course"."id"
+            )`),
+            'enrollmentCount'
+          ]
+        ]
+      },
       include: [
         { model: models.User, as: 'Instructor', attributes: ['id', 'name', 'email'] },
         { model: models.Lesson, as: 'lessons', attributes: ['id', 'title', 'order_index'] }
@@ -146,6 +170,18 @@ export const getPublicCourses = async (req, res) => {
 
     const { count, rows } = await models.Course.findAndCountAll({
       where,
+      attributes: {
+        include: [
+          [
+            models.sequelize.literal(`(
+              SELECT CAST(COUNT(*) AS INTEGER)
+              FROM "Enrollments" AS "enrollment"
+              WHERE "enrollment"."course_id" = "Course"."id"
+            )`),
+            'enrollmentCount'
+          ]
+        ]
+      },
       include: [
         { model: models.User, as: 'Instructor', attributes: ['id', 'name', 'email'] }
       ],
