@@ -6,6 +6,11 @@ import swaggerSpec from './swagger.js';
 
 const app = express();
 
+// Trust proxy if the application is behind a reverse proxy (Nginx, Heroku, AWS, Cloudflare, etc.)
+if (process.env.TRUST_PROXY === 'true') {
+  app.set('trust proxy', 1);
+}
+
 // Global Middlewares
 app.use(helmet());
 app.use(cors());

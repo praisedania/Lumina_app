@@ -126,19 +126,30 @@ export const switchToInstructor = async (req, res) => {
 export const verifyEmail = async (req, res) => {
   try {
     const token = req.query.token || req.body.token;
+    const redirectScheme = process.env.MOBILE_REDIRECT_SCHEME || 'lumina://verify';
 
     if (!token) {
+      if (req.method === 'GET') {
+        return res.redirect(`${redirectScheme}?status=error&message=Verification%20token%20is%20required`);
+      }
       return res.status(400).json({ status: 'error', message: 'Verification token is required' });
     }
 
     const user = await models.User.findOne({ where: { verificationToken: token } });
     if (!user) {
+      if (req.method === 'GET') {
+        return res.redirect(`${redirectScheme}?status=error&message=Invalid%20or%20expired%20verification%20token`);
+      }
       return res.status(400).json({ status: 'error', message: 'Invalid or expired verification token' });
     }
 
     user.isVerified = true;
     user.verificationToken = null;
     await user.save();
+
+    if (req.method === 'GET') {
+      return res.redirect(`${redirectScheme}?status=success&email=${encodeURIComponent(user.email)}`);
+    }
 
     res.status(200).json({
       status: 'success',
@@ -151,6 +162,10 @@ export const verifyEmail = async (req, res) => {
     });
   } catch (error) {
     console.error('Error during email verification:', error);
+    if (req.method === 'GET') {
+      const redirectScheme = process.env.MOBILE_REDIRECT_SCHEME || 'lumina://verify';
+      return res.redirect(`${redirectScheme}?status=error&message=Internal%20Server%20Error`);
+    }
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 };
