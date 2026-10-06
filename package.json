@@ -1,32 +1,17 @@
 {
-  "name": "lumina-app",
+  "name": "lumina-monorepo",
   "version": "1.0.0",
-  "description": "Lumina Learning Management System",
-  "main": "src/server.js",
-  "type": "module",
+  "description": "Lumina Learning Management System Monorepo",
+  "private": true,
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
-  },
-  "dependencies": {
-    "bcrypt": "^5.1.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "express-rate-limit": "^8.5.2",
-    "helmet": "^7.1.0",
-    "joi": "^17.13.1",
-    "jsonwebtoken": "^9.0.2",
-    "pg": "^8.11.5",
-    "pg-hstore": "^2.3.4",
-    "resend": "^6.12.4",
-    "sequelize": "^6.37.3",
-    "socket.io": "^4.7.5",
-    "swagger-ui-express": "^5.0.1",
-    "uuid": "^14.0.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.0",
-    "sequelize-cli": "^6.6.2"
+    "dev": "npm --prefix lumina-backend run dev",
+    "dev:backend": "npm --prefix lumina-backend run dev",
+    "dev:frontend": "npm --prefix lumina-frontend run dev",
+    "start:backend": "npm --prefix lumina-backend start",
+    "start:frontend": "npm --prefix lumina-frontend start",
+    "build:frontend": "npm --prefix lumina-frontend run build",
+    "install:backend": "npm --prefix lumina-backend install",
+    "install:frontend": "npm --prefix lumina-frontend install",
+    "install:all": "npm --prefix lumina-backend install && npm --prefix lumina-frontend install"
   }
 }
