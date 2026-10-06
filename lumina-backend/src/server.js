@@ -3,7 +3,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import app from './app.js';
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 
 // Create HTTP server wrapping Express app
 const server = http.createServer(app);

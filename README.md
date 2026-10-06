@@ -6,11 +6,15 @@ This repository is a **monorepo** containing:
 
 | Package | Path | Stack | Default Port |
 |---|---|---|---|
-| **API / Realtime server** | [`lumina-backend/`](lumina-backend) | Node.js (ESM), Express 4, Sequelize 6, PostgreSQL, Socket.IO 4 | `3000` (via `PORT`) |
-| **Web client** | [`lumina-frontend/`](lumina-frontend) | Next.js 16 (App Router, Turbopack), React 19, TypeScript, Tailwind CSS 4 | `3000` (Next default) |
+| **API / Realtime server** | [`lumina-backend/`](lumina-backend) | Node.js (ESM), Express 4, Sequelize 6, PostgreSQL, Socket.IO 4 | `8000` |
+| **Web client** | [`lumina-frontend/`](lumina-frontend) | Next.js 16 (App Router, Turbopack), React 19, TypeScript, Tailwind CSS 4 | `3000` |
 
-> [!IMPORTANT]
-> Both apps default to port **3000**. When running locally, set the backend `PORT` to something else (e.g. `8000`) so it matches the frontend's `NEXT_PUBLIC_API_URL`. See [Environment Variables](#-environment-variables).
+| Service | Local URL |
+|---|---|
+| Backend API | http://localhost:8000/api |
+| Socket.IO | http://localhost:8000 |
+| Swagger docs | http://localhost:8000/api/docs |
+| Frontend | http://localhost:3000 |
 
 ---
 
@@ -196,7 +200,7 @@ npm run dev:frontend
 | Variable | Required | Example | Description |
 |---|---|---|---|
 | `NODE_ENV` | prod | `production` | Selects the Sequelize config block and production behaviour |
-| `PORT` | ✅ | `8000` | HTTP + Socket.IO port (defaults to `3000`) |
+| `PORT` | ✅ | `8000` | HTTP + Socket.IO port for the backend |
 | `DB_HOST` | dev | `localhost` | Postgres host (development config) |
 | `DB_PORT` | dev | `5432` | Postgres port |
 | `DB_NAME` | dev | `lumina_db` | Database name |
@@ -447,7 +451,7 @@ location / {
 
 | Symptom | Likely Cause / Fix |
 |---|---|
-| `EADDRINUSE :3000` | Backend and frontend both on 3000 — set `PORT=8000` in `lumina-backend/.env` |
+| `EADDRINUSE :8000` | Another process is using port 8000 — stop it or change `PORT` (and update the frontend `NEXT_PUBLIC_*` URLs to match) |
 | Frontend shows network errors | `NEXT_PUBLIC_API_URL` doesn't match backend port, or is missing `/api` |
 | `SequelizeConnectionRefusedError` | Postgres not running or wrong `DB_HOST`/`DB_PORT` |
 | `password authentication failed` | Wrong `DB_USER`/`DB_PASSWORD` |
