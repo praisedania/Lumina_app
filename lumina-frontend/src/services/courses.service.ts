@@ -21,7 +21,7 @@ export interface CreateCourseDto {
   currency?: string;
 }
 
-export interface UpdateCourseDto extends Partial<CreateCourseDto> {}
+export type UpdateCourseDto = Partial<CreateCourseDto>;
 
 export const coursesService = {
   async getPublicCourses(params?: CourseFilterParams): Promise<ApiResponse<PublicCoursesData>> {

@@ -97,11 +97,6 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   // Initialize single authenticated socket when logged in
   useEffect(() => {
     if (!isAuthenticated || !token) {
-      if (socket) {
-        socket.disconnect();
-        setSocket(null);
-        setIsConnected(false);
-      }
       return;
     }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { authService } from '@/services/auth.service';
@@ -23,14 +23,7 @@ function VerifyEmailContent() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Auto verify if token is in query params
-  useEffect(() => {
-    if (initialToken) {
-      handleVerify(initialToken);
-    }
-  }, [initialToken]);
-
-  const handleVerify = async (tokenToVerify = token) => {
+  const handleVerify = useCallback(async (tokenToVerify = token) => {
     if (!tokenToVerify.trim()) {
       setError('Please provide a verification token');
       return;
@@ -44,12 +37,20 @@ function VerifyEmailContent() {
       setTimeout(() => {
         router.push('/login');
       }, 2000);
-    } catch (err: any) {
-      setError(err.message || 'Verification failed. The token may have expired or is invalid.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Verification failed. The token may have expired or is invalid.';
+      setError(message);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [token, router]);
+
+  // Auto verify if token is in query params
+  useEffect(() => {
+    if (initialToken) {
+      handleVerify(initialToken);
+    }
+  }, [initialToken, handleVerify]);
 
   const handleResend = async () => {
     if (!email.trim()) {
@@ -61,8 +62,9 @@ function VerifyEmailContent() {
     try {
       await authService.resendVerification(email.trim());
       toast.success('Verification token resent to your email');
-    } catch (err: any) {
-      setError(err.message || 'Failed to resend verification');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to resend verification';
+      setError(message);
     } finally {
       setIsResending(false);
     }

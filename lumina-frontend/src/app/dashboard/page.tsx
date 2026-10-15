@@ -6,7 +6,7 @@ import ProtectedRoute from '@/components/guards/ProtectedRoute';
 import DashboardSidebar from '@/components/layout/DashboardSidebar';
 import { useAuth } from '@/providers/AuthProvider';
 import { useMyEnrollments } from '@/hooks/useEnrollments';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import { Progress } from '@/components/ui/Progress';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Skeleton';
@@ -14,7 +14,6 @@ import { Badge } from '@/components/ui/Badge';
 import {
   BookOpen,
   CheckCircle2,
-  Trophy,
   ArrowRight,
   Compass,
   MessageSquare,
@@ -30,15 +29,11 @@ export default function DashboardPage() {
   // Compute summary stats
   const totalEnrolled = enrollments?.length || 0;
   let totalLessonsCompleted = 0;
-  let completedCoursesCount = 0;
-  let totalProgressSum = 0;
 
   if (enrollments && enrollments.length > 0) {
     enrollments.forEach((e) => {
       const completedCount = e.completed_lesson_ids?.length || 0;
       totalLessonsCompleted += completedCount;
-      // We can check if all completed if course lessons available, or if completedCount > 0
-      totalProgressSum += completedCount;
     });
   }
 
