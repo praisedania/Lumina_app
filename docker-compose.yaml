@@ -1,0 +1,50 @@
+services:
+#DATABASE SERVICES
+ postgres:
+  image: postgres:17
+  container_name: lumina-db
+  restart: always
+  ports:
+    - "5432:5432"
+  env_file: ./lumina-backend/.env
+  volumes:
+    - postgres_data:/var/lib/postgresql/data
+  networks:
+    - lumina_app
+
+#Backend services
+ backend:
+  image: developerpraise/lumina-backend:v1
+  container_name: lumina-backend
+  restart: always
+  ports:
+    - "8000:8000"
+  env_file: ./lumina-backend/.env
+  environment:
+    DB_HOST: postgres
+  depends_on:
+    - postgres
+  networks:
+    - lumina_app
+
+#Frontend services
+ frontend:
+  image: developerpraise/lumina-frontend:v1
+  container_name: lumina-frontend
+  restart: always
+  ports:
+    - "3000:3000"
+  depends_on:
+    - backend
+  networks:
+    - lumina_app
+
+#NETWORKS
+networks:
+  lumina_app:
+    driver: bridge
+
+#VOLUMES
+volumes:
+  postgres_data:
+    driver: local

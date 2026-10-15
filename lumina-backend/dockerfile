@@ -1,0 +1,33 @@
+#Production dependencies
+
+FROM node:20-alpine AS prod-deps
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci --omit=dev
+
+#Runner
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nestjs
+
+RUN chown -R nestjs:nodejs /app
+
+COPY --from=prod-deps --chown=nestjs:nodejs /app/node_modules ./node_modules
+
+COPY --chown=nestjs:nodejs . .
+
+RUN chmod -R 755 /app
+
+USER nestjs
+
+EXPOSE 8000
+
+CMD ["node", "src/server.js"]
