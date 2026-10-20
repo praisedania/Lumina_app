@@ -86,3 +86,71 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/lumina-frontend:${{ steps.meta.outputs.image_tag }}
           context: ./lumina-frontend
           file: ./lumina-frontend/dockerfile   
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - build-lumina-backend
+      - build-lumina-frontend
+
+    env:
+      AWS_REGION: us-east-1
+      EKS_CLUSTER_NAME: lumina-eks-cluster
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig for EKS
+        run: |
+          aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
+
+      - name: Create namespace & configuration
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/configmap.yaml
+
+      - name: Deploy Database and Supporting Services
+        run: |
+          kubectl apply -f k8s/postgres/
+          kubectl apply -f k8s/ingress.yaml
+          kubectl apply -f k8s/hpa.yaml
+
+      - name: Deploy Applications & Update Images
+        run: |
+          BACKEND_IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/lumina-backend:${{ needs.build-lumina-backend.outputs.image_tag }}"
+          FRONTEND_IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/lumina-frontend:${{ needs.build-lumina-frontend.outputs.image_tag }}"
+
+          # Apply base deployment manifests
+          kubectl apply -f k8s/backend/
+          kubectl apply -f k8s/frontend/
+
+          # Update containers with newly built SHA image tags
+          kubectl set image deployment/lumina-backend backend=$BACKEND_IMAGE -n lumina
+          kubectl set image deployment/lumina-frontend frontend=$FRONTEND_IMAGE -n lumina
+
+      - name: Wait for Rollout to Complete
+        run: |
+          echo "Waiting for backend deployment rollout..."
+          kubectl rollout status deployment/lumina-backend -n lumina --timeout=300s
+
+          echo "Waiting for frontend deployment rollout..."
+          kubectl rollout status deployment/lumina-frontend -n lumina --timeout=300s
+
+      - name: Verify Cluster Status
+        if: always()
+        run: |
+          echo "=== Pods in 'lumina' namespace ==="
+          kubectl get pods -n lumina -o wide
+          echo "=== Services ==="
+          kubectl get svc -n lumina
+          echo "=== Ingress ==="
+          kubectl get ingress -n lumina
+
