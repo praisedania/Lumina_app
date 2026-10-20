@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lumina-backend-config
+  namespace: lumina
+  labels:
+    app.kubernetes.io/name: lumina-backend
+    app.kubernetes.io/part-of: lumina-lms
+data:
+  NODE_ENV: "production"
+  PORT: "8000"
+  DB_HOST: "postgres"
+  DB_PORT: "5432"
+  DB_NAME: "lumina_db"
+  DB_DIALECT: "postgres"
+  APP_URL: "http://lumina-backend:8000"
+  MOBILE_REDIRECT_SCHEME: "lumina://verify"
+  RATE_LIMIT_WINDOW_MS: "3600000"
+  RATE_LIMIT_MAX: "100"
+  TRUST_PROXY: "true"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lumina-frontend-config
+  namespace: lumina
+  labels:
+    app.kubernetes.io/name: lumina-frontend
+    app.kubernetes.io/part-of: lumina-lms
+data:
+  PORT: "3000"
+  NODE_ENV: "production"
+  NEXT_PUBLIC_API_URL: "/api"
+  NEXT_PUBLIC_SOCKET_URL: "/"

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: lumina-backend
+  namespace: lumina
+  labels:
+    app.kubernetes.io/name: lumina-backend
+    app.kubernetes.io/part-of: lumina-lms
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: lumina-backend

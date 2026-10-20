@@ -1,0 +1,46 @@
+# ==========================================
+# 1. Let's Encrypt Production (For AWS EKS with a real domain)
+# ==========================================
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    # REPLACE with your real email address for renewal notices
+    email: admin@kyberncloud.com
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+---
+# ==========================================
+# 2. Let's Encrypt Staging (For testing on AWS EKS to avoid rate limits)
+# ==========================================
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: admin@kyberncloud.com
+    privateKeySecretRef:
+      name: letsencrypt-staging-account-key
+    solvers:
+      - http01:
+          ingress:
+            class: nginx
+---
+# ==========================================
+# 3. Self-Signed Issuer (For Local Minikube Testing without a public domain)
+# ==========================================
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-issuer
+spec:
+  selfSigned: {}

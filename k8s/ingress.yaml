@@ -1,0 +1,58 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lumina-ingress
+  namespace: lumina
+  labels:
+    app.kubernetes.io/name: lumina-ingress
+    app.kubernetes.io/part-of: lumina-lms
+  annotations:
+    # Use standard NGINX Ingress Controller
+    kubernetes.io/ingress.class: nginx
+    
+    # WebSocket support for real-time chat & notifications (Socket.io)
+    nginx.ingress.kubernetes.io/websocket-services: lumina-backend
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    
+    # Allow file uploads (course videos, avatars, PDFs)
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    
+    # SSL / TLS certificate automation via cert-manager
+    # In production, use 'letsencrypt-prod'. In local minikube, use 'selfsigned-issuer'
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - lumina.martsplaza.com
+      secretName: lumina-tls-cert
+  rules:
+    - host: lumina.martsplaza.com
+      http:
+        paths:
+          # Backend API routes
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: lumina-backend
+                port:
+                  number: 8000
+          # Socket.io real-time chat & notifications
+          - path: /socket.io
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: lumina-backend
+                port:
+                  number: 8000
+          # Frontend application (root fallback)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: lumina-frontend
+                port:
+                  number: 3000

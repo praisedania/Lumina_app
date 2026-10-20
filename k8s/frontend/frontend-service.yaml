@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: lumina-frontend
+  namespace: lumina
+  labels:
+    app.kubernetes.io/name: lumina-frontend
+    app.kubernetes.io/part-of: lumina-lms
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: lumina-frontend
